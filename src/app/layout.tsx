@@ -1,4 +1,4 @@
-import type { Metadata, Viewport } from "next";
+﻿import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 
 import { Providers } from "@/providers";
@@ -22,11 +22,18 @@ export const metadata: Metadata = {
   metadataBase: new URL(env.siteUrl),
   title: {
     default: `${env.siteName} — Learn at your own pace`,
-    // Page titles fill the %s, so each route sets only its own name.
-    template: `%s · ${env.siteName}`,
+    template: `%s — ${env.siteName}`,
   },
   description:
     "A self-hosted training portal. Structured courses, progress tracking and certificates.",
+  icons: {
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/favicon.ico", sizes: "any" },
+    ],
+    shortcut: "/icon.svg",
+    apple: "/icon.svg",
+  },
   openGraph: {
     type: "website",
     siteName: env.siteName,
@@ -45,8 +52,6 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    // suppressHydrationWarning: next-themes writes the theme class onto <html>
-    // before React hydrates, which is a deliberate server/client difference.
     <html lang="en" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} min-h-screen antialiased`}>
         <Providers>{children}</Providers>

@@ -1,10 +1,11 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { AlertCircle, ArrowRight, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -16,9 +17,6 @@ import { useAuth } from "@/providers/auth-provider";
 import { errorMessage, isApiError } from "@/lib/api";
 import { homeRouteFor } from "@/types/user";
 
-// Mirrors the API's binding tags on request.Signup: 2..120, email, 8..72.
-// Validating here too means a typo is caught before a round trip; the API
-// stays the authority.
 const signupSchema = z
   .object({
     name: z.string().trim().min(2, "Name must be at least 2 characters.").max(120),
@@ -36,7 +34,6 @@ const signupSchema = z
 
 type SignupValues = z.infer<typeof signupSchema>;
 
-/** Registration form — feature UA1. Self-registration always creates a learner. */
 export function SignupForm() {
   const { signup } = useAuth();
   const router = useRouter();
@@ -56,11 +53,10 @@ export function SignupForm() {
     setFormError(null);
     try {
       const user = await signup(values.name, values.email, values.password);
-      toast.success("Account created. Welcome to Learna.");
+      toast.success("Account created successfully. Welcome to Learna!");
       router.replace(homeRouteFor(user.role));
     } catch (error) {
       if (isApiError(error)) {
-        // A taken email comes back as 409, not a field error.
         if (error.code === "CONFLICT") {
           setError("email", { message: error.message });
           return;
@@ -79,31 +75,38 @@ export function SignupForm() {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Create your account</CardTitle>
-        <CardDescription>Free, and takes a moment.</CardDescription>
+    <Card className="border-border/70 bg-card/90 shadow-2xl backdrop-blur-sm">
+      <CardHeader className="space-y-1.5 pb-6 text-center">
+        <div className="mx-auto inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+          <Sparkles className="size-3.5" /> Start Learning Free
+        </div>
+        <CardTitle className="text-2xl font-bold tracking-tight">Create your account</CardTitle>
+        <CardDescription className="text-sm">
+          Get unlimited access to courses &amp; verifiable certificates
+        </CardDescription>
       </CardHeader>
 
-      <CardContent>
+      <CardContent className="space-y-5">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
-          <Field label="Name" htmlFor="name" error={errors.name?.message}>
+          <Field label="Full name" htmlFor="name" error={errors.name?.message}>
             <Input
               id="name"
               autoComplete="name"
-              placeholder="Ada Lovelace"
+              placeholder="e.g. Alex Johnson"
               hasError={Boolean(errors.name)}
+              className="h-11"
               {...register("name")}
             />
           </Field>
 
-          <Field label="Email" htmlFor="email" error={errors.email?.message}>
+          <Field label="Email address" htmlFor="email" error={errors.email?.message}>
             <Input
               id="email"
               type="email"
               autoComplete="email"
               placeholder="you@example.com"
               hasError={Boolean(errors.email)}
+              className="h-11"
               {...register("email")}
             />
           </Field>
@@ -112,12 +115,13 @@ export function SignupForm() {
             label="Password"
             htmlFor="password"
             error={errors.password?.message}
-            hint="At least 8 characters."
+            hint="Must be at least 8 characters."
           >
             <PasswordInput
               id="password"
               autoComplete="new-password"
               hasError={Boolean(errors.password)}
+              className="h-11"
               {...register("password")}
             />
           </Field>
@@ -131,27 +135,37 @@ export function SignupForm() {
               id="confirmPassword"
               autoComplete="new-password"
               hasError={Boolean(errors.confirmPassword)}
+              className="h-11"
               {...register("confirmPassword")}
             />
           </Field>
 
           {formError && (
-            <p role="alert" className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
-              {formError}
-            </p>
+            <div
+              role="alert"
+              className="flex items-center gap-2.5 rounded-xl border border-destructive/20 bg-destructive/10 p-3 text-xs font-medium text-destructive"
+            >
+              <AlertCircle className="size-4 shrink-0" />
+              <span>{formError}</span>
+            </div>
           )}
 
-          <Button type="submit" className="w-full" isLoading={isSubmitting}>
-            Create account
+          <Button
+            type="submit"
+            className="h-11 w-full gap-2 bg-gradient-to-r from-primary to-indigo-600 font-semibold text-primary-foreground shadow-md shadow-primary/20 hover:from-primary/95 hover:to-indigo-500"
+            isLoading={isSubmitting}
+          >
+            <span>Create Account</span>
+            <ArrowRight className="size-4" />
           </Button>
         </form>
 
-        <p className="mt-4 text-center text-sm text-muted-foreground">
+        <div className="pt-2 text-center text-xs text-muted-foreground">
           Already have an account?{" "}
-          <Link href="/login" className="font-medium text-primary hover:underline">
+          <Link href="/login" className="font-semibold text-primary hover:underline">
             Sign in
           </Link>
-        </p>
+        </div>
       </CardContent>
     </Card>
   );

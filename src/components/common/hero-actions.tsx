@@ -1,45 +1,50 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
+import { ArrowRight, Sparkles } from "lucide-react";
 
 import { buttonVariants } from "@/components/ui/button";
 import { useAuth } from "@/providers/auth-provider";
 import { cn } from "@/lib/utils";
 import { homeRouteFor } from "@/types/user";
 
-/**
- * Landing-page call to action.
- *
- * A signed-in visitor is never shown "Create an account" — they already have
- * one, and the navbar drops its Sign in / Get started pair for the same
- * reason. Both wait for `isLoading` to clear so the page cannot flash the
- * signed-out CTA before the session is known.
- */
 export function HeroActions() {
   const { user, isLoading, isAuthenticated } = useAuth();
 
   return (
-    <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
-      <Link href="/courses" className={cn(buttonVariants({ size: "lg" }))}>
-        Browse courses
+    <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
+      <Link
+        href="/courses"
+        className={cn(
+          buttonVariants({ size: "lg" }),
+          "h-12 px-6 text-base font-semibold shadow-md shadow-primary/20 transition-all hover:scale-[1.02]",
+        )}
+      >
+        <span>Explore Courses</span>
+        <ArrowRight className="ml-1.5 size-4" />
       </Link>
 
       {isLoading ? (
-        // Same footprint as the button it replaces, so nothing jumps on load.
-        <div className="h-11 w-44 animate-pulse rounded-md bg-muted" aria-hidden="true" />
+        <div className="h-12 w-44 animate-pulse rounded-xl bg-muted" aria-hidden="true" />
       ) : isAuthenticated ? (
         <Link
           href={homeRouteFor(user?.role)}
-          className={cn(buttonVariants({ variant: "outline", size: "lg" }))}
+          className={cn(
+            buttonVariants({ variant: "outline", size: "lg" }),
+            "h-12 px-6 text-base font-medium transition-all hover:bg-muted",
+          )}
         >
-          Go to dashboard
+          Go to Dashboard
         </Link>
       ) : (
         <Link
           href="/signup"
-          className={cn(buttonVariants({ variant: "outline", size: "lg" }))}
+          className={cn(
+            buttonVariants({ variant: "outline", size: "lg" }),
+            "h-12 px-6 text-base font-medium transition-all hover:bg-muted",
+          )}
         >
-          Create an account
+          <span>Start Learning Free</span>
         </Link>
       )}
     </div>

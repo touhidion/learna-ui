@@ -1,10 +1,11 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { AlertCircle, ArrowRight, Lock, LogIn, Mail } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -23,7 +24,6 @@ const loginSchema = z.object({
 
 type LoginValues = z.infer<typeof loginSchema>;
 
-/** Sign-in form — feature UA2. */
 export function LoginForm() {
   const { login } = useAuth();
   const router = useRouter();
@@ -44,16 +44,11 @@ export function LoginForm() {
     setFormError(null);
     try {
       const user = await login(values.email, values.password);
-      toast.success(`Welcome back, ${user.name.split(" ")[0]}.`);
+      toast.success(`Welcome back, ${user.name.split(" ")[0]}!`);
 
-      // Return the user to wherever the guard intercepted them, falling back
-      // to the dashboard their role belongs in.
       const next = searchParams.get("next");
       router.replace(next && next.startsWith("/") ? next : homeRouteFor(user.role));
     } catch (error) {
-      // A field-level rejection from the API is mapped back onto the form;
-      // anything else (bad credentials, a deactivated account) is shown once
-      // above the submit button.
       if (isApiError(error) && error.isValidation) {
         for (const field of error.fields) {
           if (field.field === "email" || field.field === "password") {
@@ -67,53 +62,77 @@ export function LoginForm() {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Sign in</CardTitle>
-        <CardDescription>Continue where you left off.</CardDescription>
+    <Card className="border-border/70 bg-card/90 shadow-2xl backdrop-blur-sm">
+      <CardHeader className="space-y-1.5 pb-6 text-center">
+        <CardTitle className="text-2xl font-bold tracking-tight">Welcome back</CardTitle>
+        <CardDescription className="text-sm">
+          Enter your credentials to continue your learning journey
+        </CardDescription>
       </CardHeader>
 
-      <CardContent>
+      <CardContent className="space-y-5">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
-          <Field label="Email" htmlFor="email" error={errors.email?.message}>
-            <Input
-              id="email"
-              type="email"
-              autoComplete="email"
-              placeholder="you@example.com"
-              hasError={Boolean(errors.email)}
-              aria-describedby={errors.email ? "email-error" : undefined}
-              {...register("email")}
-            />
+          <Field label="Email address" htmlFor="email" error={errors.email?.message}>
+            <div className="relative">
+              <Input
+                id="email"
+                type="email"
+                autoComplete="email"
+                placeholder="you@example.com"
+                hasError={Boolean(errors.email)}
+                aria-describedby={errors.email ? "email-error" : undefined}
+                className="h-11"
+                {...register("email")}
+              />
+            </div>
           </Field>
 
           <Field label="Password" htmlFor="password" error={errors.password?.message}>
-            <PasswordInput
-              id="password"
-              autoComplete="current-password"
-              hasError={Boolean(errors.password)}
-              aria-describedby={errors.password ? "password-error" : undefined}
-              {...register("password")}
-            />
+            <div className="space-y-1">
+              <PasswordInput
+                id="password"
+                autoComplete="current-password"
+                hasError={Boolean(errors.password)}
+                aria-describedby={errors.password ? "password-error" : undefined}
+                className="h-11"
+                {...register("password")}
+              />
+            </div>
           </Field>
 
+          <div className="flex justify-end text-xs">
+            <Link
+              href="/forgot-password"
+              className="text-muted-foreground transition-colors hover:text-primary hover:underline"
+            >
+              Forgot your password?
+            </Link>
+          </div>
+
           {formError && (
-            <p role="alert" className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
-              {formError}
-            </p>
+            <div
+              role="alert"
+              className="flex items-center gap-2.5 rounded-xl border border-destructive/20 bg-destructive/10 p-3 text-xs font-medium text-destructive"
+            >
+              <AlertCircle className="size-4 shrink-0" />
+              <span>{formError}</span>
+            </div>
           )}
 
-          <Button type="submit" className="w-full" isLoading={isSubmitting}>
-            Sign in
+          <Button
+            type="submit"
+            className="h-11 w-full gap-2 bg-gradient-to-r from-primary to-indigo-600 font-semibold text-primary-foreground shadow-md shadow-primary/20 hover:from-primary/95 hover:to-indigo-500"
+            isLoading={isSubmitting}
+          >
+            <span>Sign in</span>
+            <ArrowRight className="size-4" />
           </Button>
         </form>
 
-        <div className="mt-4 flex items-center justify-between text-sm">
-          <Link href="/forgot-password" className="text-muted-foreground hover:text-foreground">
-            Forgot password?
-          </Link>
-          <Link href="/signup" className="font-medium text-primary hover:underline">
-            Create an account
+        <div className="pt-2 text-center text-xs text-muted-foreground">
+          Don&apos;t have an account yet?{" "}
+          <Link href="/signup" className="font-semibold text-primary hover:underline">
+            Create an account free
           </Link>
         </div>
       </CardContent>

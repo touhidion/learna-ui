@@ -1,0 +1,25 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <defs>
+    <linearGradient id="learnaGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4F46E5" />
+      <stop offset="60%" stop-color="#3B82F6" />
+      <stop offset="100%" stop-color="#06B6D4" />
+    </linearGradient>
+    <linearGradient id="capGold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FDE047" />
+      <stop offset="100%" stop-color="#EAB308" />
+    </linearGradient>
+  </defs>
+  <!-- Background squircle -->
+  <rect width="32" height="32" rx="7" fill="url(#learnaGrad)" />
+  
+  <!-- Graduation Cap Main Diamond -->
+  <path d="M16 6.5 L27 12 L16 17.5 L5 12 Z" fill="#FFFFFF" />
+  
+  <!-- Cap Skull Base -->
+  <path d="M9 14.5 V19 C9 22.5 23 22.5 23 19 V14.5 L16 18 Z" fill="#E0E7FF" opacity="0.95" />
+  
+  <!-- Tassel Cord and Golden Pendant -->
+  <path d="M22.5 14.2 L23.5 20.5" stroke="url(#capGold)" stroke-width="1.2" stroke-linecap="round" />
+  <circle cx="23.5" cy="21" r="1.2" fill="url(#capGold)" />
+</svg>
