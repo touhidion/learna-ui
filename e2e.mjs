@@ -29,6 +29,9 @@ async function goto(page, url) {
     try {
       await page.goto(url, { waitUntil: "domcontentloaded", timeout: 60000 });
       await page.waitForLoadState("networkidle", { timeout: 30000 }).catch(() => {});
+      // React handlers only exist after hydration; clicking sooner hits an
+      // inert control and the request never leaves the browser.
+      await page.waitForTimeout(1200);
       return;
     } catch (e) {
       if (attempt === 2) throw e;
@@ -79,6 +82,7 @@ async function main() {
 
   // --- 4. signed-in header --------------------------------------------------
   console.log("header after sign-in");
+  await page.waitForSelector('button[aria-label*="Account menu"]', { timeout: 20000 });
   check("no Sign in link", await page.locator('header >> text="Sign in"').count(), 0);
   check("no Get started link", await page.locator('header >> text="Get started"').count(), 0);
   check("account menu present", await page.locator('button[aria-label*="Account menu"]').isVisible(), true);
@@ -112,19 +116,21 @@ async function main() {
 
   // --- 7. complete every lesson --------------------------------------------
   console.log("work through every lesson");
+  await page.waitForSelector('nav[aria-label="Course lessons"] a', { timeout: 30000 });
   const lessonLinks = await page.locator('nav[aria-label="Course lessons"] a').count();
   check("sidebar lists lessons", lessonLinks > 0, true);
 
   for (let i = 0; i < lessonLinks; i++) {
     await page.locator('nav[aria-label="Course lessons"] a').nth(i).click();
-    await page.waitForTimeout(400);
+    await page.waitForTimeout(600);
     const markBtn = page.locator('button:has-text("Mark as complete")');
     if (await markBtn.count()) {
       await markBtn.first().click();
-      await page.waitForTimeout(700);
+      // The mutation refetches the tree; the next click must not race it.
+      await page.waitForTimeout(1800);
     }
   }
-  await page.waitForTimeout(800);
+  await page.waitForSelector("text=Course complete", { timeout: 20000 }).catch(() => {});
   check("100% reached", await page.locator("text=Course complete").isVisible(), true);
 
   // --- 8. certificate ------------------------------------------------------
@@ -147,7 +153,7 @@ async function main() {
   const anon = await browser.newPage();
   await goto(anon, `${UI}/verify/${certNumber}`);
   check("verified", await anon.locator("text=Certificate verified").isVisible(), true);
-  check("holder named", await anon.locator(`text=${NAME}`).isVisible(), true);
+  check("holder named", await anon.locator(`dd:has-text("${NAME}")`).isVisible(), true);
   await goto(anon, `${UI}/verify/LEARNA-2026-ZZZZZZ`);
   check("bogus number rejected", await anon.locator("text=Not verified").isVisible(), true);
   await anon.close();
