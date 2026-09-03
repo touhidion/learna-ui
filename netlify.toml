@@ -31,12 +31,11 @@
 # ---------------------------------------------------------------------------
 
 [context.production.environment]
-  # REPLACE with the Render service URL. No trailing slash: the API client
-  # appends /api/v1 itself.
+  # Live Render service. No trailing slash: the API client appends /api/v1.
   NEXT_PUBLIC_API_URL = "https://learna-api.onrender.com"
-  # REPLACE with the real site origin once the Netlify domain is known.
-  # This drives canonical and Open Graph URLs, so a wrong value silently
-  # produces wrong metadata rather than an error.
+  # Drives canonical URLs, Open Graph tags and the shareable /verify links a
+  # certificate holder sends out. A wrong value produces wrong links silently
+  # rather than an error, so keep it in step with the real domain.
   NEXT_PUBLIC_SITE_URL = "https://learna.netlify.app"
   NEXT_PUBLIC_SITE_NAME = "Learna"
 
