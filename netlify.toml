@@ -1,0 +1,75 @@
+# Netlify configuration for learna-ui.
+#
+# Deploy: Netlify -> Add new site -> Import from Git -> pick this repo.
+# Netlify reads this file; nothing needs configuring in the UI except the
+# production API URL, which is set below per context.
+
+[build]
+  command = "npm run build"
+  # The Next.js runtime rewrites this during the build. It must still be
+  # declared, and must be ".next" — not "out", which is for static exports.
+  publish = ".next"
+
+[build.environment]
+  # Next 16 requires Node 20+; 22 is the current LTS.
+  NODE_VERSION = "22"
+  # Install devDependencies: the build needs typescript, eslint and tailwind,
+  # and Netlify sets NODE_ENV=production which would otherwise skip them.
+  NPM_FLAGS = "--include=dev"
+
+# Netlify auto-detects Next.js and installs this, but declaring it pins the
+# behaviour instead of leaving it to detection.
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+# ---------------------------------------------------------------------------
+# Environment per deploy context.
+#
+# NEXT_PUBLIC_* is inlined into the client bundle at BUILD time, not read at
+# runtime — so changing any value here requires a redeploy, not a restart.
+# None of these are secrets; a secret would go in the Netlify UI instead.
+# ---------------------------------------------------------------------------
+
+[context.production.environment]
+  # REPLACE with the Render service URL. No trailing slash: the API client
+  # appends /api/v1 itself.
+  NEXT_PUBLIC_API_URL = "https://learna-api.onrender.com"
+  # REPLACE with the real site origin once the Netlify domain is known.
+  # This drives canonical and Open Graph URLs, so a wrong value silently
+  # produces wrong metadata rather than an error.
+  NEXT_PUBLIC_SITE_URL = "https://learna.netlify.app"
+  NEXT_PUBLIC_SITE_NAME = "Learna"
+
+# Deploy previews and branch builds point at the same API. The API's
+# CORS_ALLOWED_ORIGINS lists exact origins, and every preview gets a unique
+# hostname, so browser calls from a preview will be blocked unless that origin
+# is added. Previews are therefore useful for layout review, not for exercising
+# authenticated flows.
+[context.deploy-preview.environment]
+  NEXT_PUBLIC_API_URL = "https://learna-api.onrender.com"
+  NEXT_PUBLIC_SITE_NAME = "Learna (preview)"
+
+[context.branch-deploy.environment]
+  NEXT_PUBLIC_API_URL = "https://learna-api.onrender.com"
+  NEXT_PUBLIC_SITE_NAME = "Learna (branch)"
+
+# ---------------------------------------------------------------------------
+# Headers.
+#
+# next.config.ts sets the same security headers, which covers server-rendered
+# responses. These apply at the CDN edge and so also cover static assets.
+# ---------------------------------------------------------------------------
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "DENY"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+
+# Hashed filenames are content-addressed, so they can be cached forever.
+[[headers]]
+  for = "/_next/static/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
