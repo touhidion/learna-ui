@@ -33,10 +33,14 @@
 [context.production.environment]
   # Live Render service. No trailing slash: the API client appends /api/v1.
   NEXT_PUBLIC_API_URL = "https://learna-api.onrender.com"
-  # Drives canonical URLs, Open Graph tags and the shareable /verify links a
-  # certificate holder sends out. A wrong value produces wrong links silently
-  # rather than an error, so keep it in step with the real domain.
-  NEXT_PUBLIC_SITE_URL = "https://learna.netlify.app"
+  # MUST match the domain this site is actually served from.
+  #
+  # It is not decoration: every shared certificate link, the LinkedIn
+  # "Add to profile" certUrl, and every canonical/og:url tag are built from
+  # it. Pointing it at a domain that serves a different app produces links
+  # that 404 for the recipient while the site itself looks fine, so nothing
+  # here fails loudly when it is wrong.
+  NEXT_PUBLIC_SITE_URL = "https://learna2.netlify.app"
   NEXT_PUBLIC_SITE_NAME = "Learna"
 
 # Deploy previews and branch builds point at the same API. The API's
@@ -47,6 +51,7 @@
 [context.deploy-preview.environment]
   NEXT_PUBLIC_API_URL = "https://learna-api.onrender.com"
   NEXT_PUBLIC_SITE_NAME = "Learna (preview)"
+  NEXT_PUBLIC_SITE_URL = "https://learna2.netlify.app"
 
 [context.branch-deploy.environment]
   NEXT_PUBLIC_API_URL = "https://learna-api.onrender.com"
