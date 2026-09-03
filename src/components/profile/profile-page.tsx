@@ -56,8 +56,13 @@ export function ProfilePage() {
   return (
     <div className="mx-auto max-w-2xl space-y-6 px-4 py-10">
       <ProfileSummary />
-      <ProfileForm onSaved={refreshUser} />
-      <PasswordForm />
+      {/* scroll-mt keeps the anchored card clear of the sticky header. */}
+      <div id="edit-profile" className="scroll-mt-24">
+        <ProfileForm onSaved={refreshUser} />
+      </div>
+      <div id="change-password" className="scroll-mt-24">
+        <PasswordForm />
+      </div>
     </div>
   );
 }
