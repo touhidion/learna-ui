@@ -1,25 +1,36 @@
 ﻿"use client";
 
 import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Award, BookOpen } from "lucide-react";
 
 import { CourseCard, CourseCardSkeleton, CourseGrid } from "@/components/course/course-card";
 import { buttonVariants } from "@/components/ui/button";
-import { EmptyState } from "@/components/ui/feedback";
+import { EmptyState, PageSpinner } from "@/components/ui/feedback";
 import { useMyEnrollments } from "@/hooks/use-api";
 import { useAuth } from "@/providers/auth-provider";
 import { cn } from "@/lib/utils";
 
-/** Learner dashboard — features LD1, LD2. */
+/** Learner dashboard — features LD1, LD2. Administrators are routed to Management Console. */
 export default function DashboardPage() {
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
+  const router = useRouter();
   const { data, isLoading } = useMyEnrollments();
   const enrollments = data?.items ?? [];
 
   useEffect(() => {
+    if (isAdmin) {
+      router.replace("/admin/dashboard");
+      return;
+    }
     document.title = "My Courses & Dashboard | Learna";
-  }, []);
+  }, [isAdmin, router]);
+
+  // If administrator landed here, show spinner while redirecting to Management Console
+  if (isAdmin) {
+    return <PageSpinner label="Redirecting to Management Console..." />;
+  }
 
   return (
     <div className="space-y-6">

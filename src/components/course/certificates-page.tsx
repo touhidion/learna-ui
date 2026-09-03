@@ -2,24 +2,25 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Award, Check, Copy, Download, Eye, Sparkles } from "lucide-react";
+import { Award, Download, Eye, Share2, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog } from "@/components/ui/dialog";
 import { EmptyState, Skeleton } from "@/components/ui/feedback";
+import { CertificateShareDialog } from "@/components/course/certificate-share-dialog";
 import { useMyCertificates } from "@/hooks/use-api";
 import { api } from "@/lib/api";
-import { env } from "@/lib/env";
 import { cn, formatDate } from "@/lib/utils";
 import type { Certificate } from "@/types/course";
 
-/** My certificates — features LCT1, LCT2, LCT3 with modern golden design. */
+/** My certificates — features LCT1, LCT2, LCT3 with modern golden design and social sharing. */
 export function CertificatesPage() {
   const { data, isLoading } = useMyCertificates();
   const certificates = data?.certificates ?? [];
   const [previewCert, setPreviewCert] = useState<Certificate | null>(null);
+  const [shareCert, setShareCert] = useState<Certificate | null>(null);
 
   return (
     <div className="mx-auto max-w-5xl space-y-8 px-4 py-10">
@@ -67,6 +68,7 @@ export function CertificatesPage() {
               key={c.id}
               certificate={c}
               onPreview={() => setPreviewCert(c)}
+              onShare={() => setShareCert(c)}
             />
           ))}
         </ul>
@@ -81,7 +83,6 @@ export function CertificatesPage() {
           description="Official verified certificate issued by Learna Academy."
         >
           <div className="relative overflow-hidden rounded-2xl border-2 border-amber-500/40 bg-gradient-to-b from-amber-500/5 to-transparent p-4 sm:p-6 text-center">
-            {/* Decorative border */}
             <div className="rounded-xl border border-amber-500/30 p-5 sm:p-6 space-y-6">
               <div className="space-y-1">
                 <p className="text-xs font-bold uppercase tracking-widest text-amber-600 dark:text-amber-400">
@@ -115,6 +116,13 @@ export function CertificatesPage() {
           </div>
         </Dialog>
       )}
+
+      {/* Certificate Social Share Dialog */}
+      <CertificateShareDialog
+        certificate={shareCert}
+        open={Boolean(shareCert)}
+        onClose={() => setShareCert(null)}
+      />
     </div>
   );
 }
@@ -122,14 +130,13 @@ export function CertificatesPage() {
 function CertificateRow({
   certificate,
   onPreview,
+  onShare,
 }: {
   certificate: Certificate;
   onPreview: () => void;
+  onShare: () => void;
 }) {
-  const [copied, setCopied] = useState(false);
   const [downloading, setDownloading] = useState(false);
-
-  const verifyUrl = `${env.siteUrl}/verify/${certificate.cert_number}`;
 
   async function download() {
     setDownloading(true);
@@ -150,21 +157,9 @@ function CertificateRow({
     }
   }
 
-  async function copyLink() {
-    try {
-      await navigator.clipboard.writeText(verifyUrl);
-      setCopied(true);
-      toast.success("Verification link copied.");
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      toast.error("Could not copy link.");
-    }
-  }
-
   return (
     <li className="list-none">
       <Card className="group relative overflow-hidden border-border/80 transition-all hover:border-amber-500/40 hover:shadow-lg hover:shadow-amber-500/5">
-        {/* Golden left accent glow */}
         <div className="absolute inset-y-0 left-0 w-1.5 bg-gradient-to-b from-amber-400 via-amber-500 to-yellow-600" />
 
         <CardContent className="flex flex-col gap-5 p-5 pl-7 sm:flex-row sm:items-center sm:justify-between">
@@ -196,9 +191,9 @@ function CertificateRow({
               <Eye className="size-3.5" />
               Preview
             </Button>
-            <Button variant="outline" size="sm" onClick={copyLink} className="gap-1.5 text-xs">
-              {copied ? <Check className="size-3.5" /> : <Copy className="size-3.5" />}
-              {copied ? "Copied" : "Share"}
+            <Button variant="outline" size="sm" onClick={onShare} className="gap-1.5 text-xs">
+              <Share2 className="size-3.5" />
+              Share
             </Button>
             <Button
               size="sm"
