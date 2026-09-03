@@ -10,6 +10,8 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { CertificateShareDialog } from "@/components/course/certificate-share-dialog";
 import { OfficialSeal } from "@/components/course/official-seal";
+import { useVerifyCertificate } from "@/hooks/use-api";
+import { PageSpinner } from "@/components/ui/feedback";
 import { cn, formatDate } from "@/lib/utils";
 import { env } from "@/lib/env";
 import type { Certificate } from "@/types/course";
@@ -69,14 +71,23 @@ export function VerifyForm() {
  */
 export function VerifyResult({
   certNumber,
-  certificate,
+  certificate: initialCert,
 }: {
   certNumber: string;
   certificate: Certificate | null;
 }) {
   const [copied, setCopied] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
-  const data = certificate;
+  const { data: queryCert, isLoading } = useVerifyCertificate(certNumber, initialCert);
+  const data = queryCert ?? initialCert;
+
+  if (isLoading && !data) {
+    return (
+      <div className="mx-auto max-w-md px-4 py-20 text-center">
+        <PageSpinner label="Verifying credential authenticity..." />
+      </div>
+    );
+  }
 
   if (!data) {
     return (

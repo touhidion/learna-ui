@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import {
   useMutation,
@@ -25,7 +25,7 @@ import type { User } from "@/types/user";
 /**
  * Query keys, centralised.
  *
- * Every key is an array so a mutation can invalidate a whole subtree — for
+ * Every key is an array so a mutation can invalidate a whole subtree â€” for
  * example `["courses"]` clears both the list and every course detail, which is
  * what keeps a rename visible in the table without hand-listing each key.
  */
@@ -412,6 +412,16 @@ export function useGenerateCertificate() {
     (courseId: string) => post<Certificate>(`/certificates/courses/${courseId}`),
     { successMessage: "Certificate issued.", invalidate: [["certificates"]] },
   );
+}
+
+export function useVerifyCertificate(certNumber: string, initialData?: Certificate | null) {
+  return useQuery({
+    queryKey: ["certificates", "verify", certNumber],
+    queryFn: () => get<Certificate>(`/certificates/verify/${encodeURIComponent(certNumber)}`),
+    initialData: initialData ?? undefined,
+    enabled: Boolean(certNumber),
+    retry: 2,
+  });
 }
 
 /* --- analytics ------------------------------------------------------------ */
