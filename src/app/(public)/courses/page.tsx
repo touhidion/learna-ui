@@ -1,20 +1,27 @@
 import type { Metadata } from "next";
 
-import { Placeholder } from "@/components/common/placeholder";
+import { Catalog } from "@/components/course/catalog";
+import { API_BASE } from "@/lib/env";
 
 export const metadata: Metadata = {
   title: "Courses",
-  description: "Browse every published course.",
+  description: "Browse every published course and enrol for free.",
 };
 
-export default function CatalogPage() {
-  return (
-    <Placeholder
-      title="Course catalog"
-      features="UP2, PC1"
-      description="Search, category filter and a paginated grid of published courses, server-rendered for SEO."
-      backHref="/"
-      backLabel="Back home"
-    />
-  );
+// Categories are stable and public, so they are fetched on the server and
+// passed down — the client then only pages through courses.
+async function getCategories(): Promise<string[]> {
+  try {
+    const res = await fetch(`${API_BASE}/categories`, { next: { revalidate: 300 } });
+    if (!res.ok) return [];
+    const body = (await res.json()) as { categories: string[] };
+    return body.categories ?? [];
+  } catch {
+    // The catalog still works without the filter if the API is unreachable.
+    return [];
+  }
+}
+
+export default async function CatalogPage() {
+  return <Catalog categories={await getCategories()} />;
 }

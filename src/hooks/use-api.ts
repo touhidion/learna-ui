@@ -10,7 +10,16 @@ import { toast } from "sonner";
 
 import { del, errorMessage, get, patch, post } from "@/lib/api";
 import type { MessageResponse, Paginated } from "@/types/api";
-import type { Course, CourseDetail, Lesson, Module } from "@/types/course";
+import type {
+  Certificate,
+  Course,
+  CourseDetail,
+  Enrollment,
+  Lesson,
+  Module,
+  Progress,
+} from "@/types/course";
+import type { AnalyticsOverview, CourseAnalytics, LearnerProgress } from "@/types/course";
 import type { User } from "@/types/user";
 
 /**
@@ -299,11 +308,14 @@ export function usePublicCourses(filters: CourseFilters) {
   });
 }
 
-export function usePublicCourse(slug: string) {
+export function usePublicCourse(slug: string, initialData?: CourseDetail) {
   return useQuery({
     queryKey: ["public-courses", slug],
     queryFn: () => get<CourseDetail>(`/courses/${slug}`),
     enabled: Boolean(slug),
+    // Server-rendered content seeds the cache, so the outline is present in
+    // the first paint rather than after a client fetch.
+    initialData,
   });
 }
 
@@ -322,4 +334,102 @@ export function useChangePassword() {
       patch<MessageResponse>("/me/password", body),
     { successMessage: "Password changed. Other sessions were signed out." },
   );
+}
+
+/* --- enrollment & progress ------------------------------------------------ */
+
+export function useMyEnrollments() {
+  return useQuery({
+    queryKey: ["enrollments"],
+    queryFn: () => get<Paginated<Enrollment>>("/me/enrollments?page_size=50"),
+  });
+}
+
+export function useEnroll() {
+  return useApiMutation((courseId: string) => post<Enrollment>(`/enrollments/${courseId}`), {
+    successMessage: "You are enrolled. Happy learning.",
+    invalidate: [["enrollments"], ["learn"]],
+  });
+}
+
+export function useUnenroll() {
+  return useApiMutation(
+    (courseId: string) => del<MessageResponse>(`/enrollments/${courseId}`),
+    {
+      successMessage: "Unenrolled. Your progress for this course was removed.",
+      invalidate: [["enrollments"], ["learn"]],
+    },
+  );
+}
+
+/** The learner's course tree, with lesson bodies and completion flags. */
+export function useLearnCourse(courseId: string) {
+  return useQuery({
+    queryKey: ["learn", courseId],
+    queryFn: () => get<CourseDetail>(`/learn/courses/${courseId}`),
+    enabled: Boolean(courseId),
+  });
+}
+
+export function useLearnLesson(lessonId: string) {
+  return useQuery({
+    queryKey: ["learn", "lesson", lessonId],
+    queryFn: () => get<Lesson>(`/learn/lessons/${lessonId}`),
+    enabled: Boolean(lessonId),
+  });
+}
+
+export function useCourseProgress(courseId: string) {
+  return useQuery({
+    queryKey: ["learn", courseId, "progress"],
+    queryFn: () => get<Progress>(`/learn/courses/${courseId}/progress`),
+    enabled: Boolean(courseId),
+  });
+}
+
+/** Toggling completion invalidates the tree so the sidebar ticks update. */
+export function useToggleLessonComplete(courseId: string) {
+  return useApiMutation(
+    ({ lessonId, complete }: { lessonId: string; complete: boolean }) =>
+      complete
+        ? post<Progress>(`/lessons/${lessonId}/complete`)
+        : del<Progress>(`/lessons/${lessonId}/complete`),
+    { invalidate: [["learn", courseId], ["enrollments"]] },
+  );
+}
+
+/* --- certificates --------------------------------------------------------- */
+
+export function useMyCertificates() {
+  return useQuery({
+    queryKey: ["certificates"],
+    queryFn: () => get<{ certificates: Certificate[] }>("/me/certificates"),
+  });
+}
+
+export function useGenerateCertificate() {
+  return useApiMutation(
+    (courseId: string) => post<Certificate>(`/certificates/courses/${courseId}`),
+    { successMessage: "Certificate issued.", invalidate: [["certificates"]] },
+  );
+}
+
+/* --- analytics ------------------------------------------------------------ */
+
+export function useAnalyticsOverview() {
+  return useQuery({
+    queryKey: ["analytics", "overview"],
+    queryFn: () => get<AnalyticsOverview>("/admin/analytics/overview"),
+  });
+}
+
+export function useCourseAnalytics(courseId: string) {
+  return useQuery({
+    queryKey: ["analytics", "course", courseId],
+    queryFn: () =>
+      get<{ stats: CourseAnalytics; learners: LearnerProgress[] }>(
+        `/admin/courses/${courseId}/analytics`,
+      ),
+    enabled: Boolean(courseId),
+  });
 }

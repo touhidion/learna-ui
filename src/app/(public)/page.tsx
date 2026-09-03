@@ -2,6 +2,7 @@ import { Award, BookOpen, TrendingUp } from "lucide-react";
 
 import { Card, CardContent } from "@/components/ui/card";
 import { HeroActions } from "@/components/common/hero-actions";
+import { FeaturedCourses } from "@/components/course/featured-courses";
 import { env } from "@/lib/env";
 
 /**
@@ -24,6 +25,8 @@ export default function LandingPage() {
 
         <HeroActions />
       </section>
+
+      <FeaturedCourses />
 
       <section className="mx-auto max-w-6xl px-4 pb-24">
         <div className="grid gap-4 sm:grid-cols-3">

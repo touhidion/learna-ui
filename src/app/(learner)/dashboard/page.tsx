@@ -1,58 +1,68 @@
 "use client";
 
 import Link from "next/link";
-import { BookOpen, User as UserIcon } from "lucide-react";
+import { Award, BookOpen } from "lucide-react";
 
+import { CourseCard, CourseCardSkeleton, CourseGrid } from "@/components/course/course-card";
 import { buttonVariants } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/feedback";
+import { useMyEnrollments } from "@/hooks/use-api";
 import { useAuth } from "@/providers/auth-provider";
 import { cn } from "@/lib/utils";
 
-/**
- * Learner dashboard — features LD1, LD2.
- *
- * LD2 (the empty state) is what renders today. LD1 — enrolled courses with
- * progress bars — needs GET /me/enrollments, which is still a 501 stub, so
- * the grid is not built yet rather than faked with placeholder cards.
- */
+/** Learner dashboard — features LD1, LD2. */
 export default function DashboardPage() {
   const { user } = useAuth();
+  const { data, isLoading } = useMyEnrollments();
+  const enrollments = data?.items ?? [];
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6 px-4 py-10">
-      <header>
-        <h1 className="text-2xl font-semibold tracking-tight">
-          Welcome back, {user?.name.split(" ")[0]}
-        </h1>
-        <p className="text-sm text-muted-foreground">Your courses and progress.</p>
+    <div className="mx-auto max-w-6xl space-y-6 px-4 py-10">
+      <header className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">
+            Welcome back, {user?.name.split(" ")[0]}
+          </h1>
+          <p className="text-sm text-muted-foreground">Pick up where you left off.</p>
+        </div>
+        <Link href="/certificates" className={cn(buttonVariants({ variant: "outline" }))}>
+          <Award aria-hidden="true" />
+          Certificates
+        </Link>
       </header>
 
-      <EmptyState
-        icon={<BookOpen />}
-        title="You are not enrolled in any courses yet"
-        description="Browse the catalog and enrol to start learning."
-        action={
-          <Link href="/courses" className={cn(buttonVariants())}>
-            Browse courses
-          </Link>
-        }
-      />
-
-      <Card>
-        <CardContent className="flex flex-wrap items-center justify-between gap-3 pt-6">
-          <div>
-            <h2 className="font-medium">Your account</h2>
-            <p className="text-sm text-muted-foreground">
-              Update your name or change your password.
-            </p>
-          </div>
-          <Link href="/profile" className={cn(buttonVariants({ variant: "outline" }))}>
-            <UserIcon aria-hidden="true" />
-            Edit profile
-          </Link>
-        </CardContent>
-      </Card>
+      {isLoading ? (
+        <CourseGrid>
+          {Array.from({ length: 3 }).map((_, i) => (
+            <CourseCardSkeleton key={i} />
+          ))}
+        </CourseGrid>
+      ) : enrollments.length === 0 ? (
+        /* LD2 */
+        <EmptyState
+          icon={<BookOpen />}
+          title="You are not enrolled in any courses yet"
+          description="Browse the catalog and enrol to start learning."
+          action={
+            <Link href="/courses" className={cn(buttonVariants())}>
+              Browse courses
+            </Link>
+          }
+        />
+      ) : (
+        /* LD1 — Continue goes straight into the player, which opens the first
+           lesson when none is specified. */
+        <CourseGrid>
+          {enrollments.map((e) => (
+            <CourseCard
+              key={e.id}
+              course={e.course}
+              href={`/learn/${e.course.id}`}
+              progress={e.progress.percentage}
+            />
+          ))}
+        </CourseGrid>
+      )}
     </div>
   );
 }

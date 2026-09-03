@@ -101,3 +101,11 @@ export interface CourseAnalytics {
   completion_rate: number;
   average_progress: number;
 }
+
+export interface LearnerProgress {
+  user_id: string;
+  name: string;
+  email: string;
+  percentage: number;
+  is_completed: boolean;
+}

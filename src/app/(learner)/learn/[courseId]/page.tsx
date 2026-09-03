@@ -1,23 +1,10 @@
-import type { Metadata } from "next";
+"use client";
 
-import { Placeholder } from "@/components/common/placeholder";
+import { use } from "react";
 
-export const metadata: Metadata = { title: "Course" };
+import { CoursePlayer } from "@/components/course/course-player";
 
-export default async function LearnCoursePage({
-  params,
-}: {
-  params: Promise<{ courseId: string }>;
-}) {
-  const { courseId } = await params;
-
-  return (
-    <Placeholder
-      title="Course view"
-      features="LC1, LC7"
-      description={`Sidebar navigation and progress for course ${courseId}.`}
-      backHref="/dashboard"
-      backLabel="Back to my courses"
-    />
-  );
+export default function Page({ params }: { params: Promise<{ courseId: string }> }) {
+  const { courseId } = use(params);
+  return <CoursePlayer courseId={courseId} />;
 }
