@@ -10,6 +10,7 @@ import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 import { Field, Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/providers/auth-provider";
 import { errorMessage, isApiError } from "@/lib/api";
@@ -113,9 +114,8 @@ export function SignupForm() {
             error={errors.password?.message}
             hint="At least 8 characters."
           >
-            <Input
+            <PasswordInput
               id="password"
-              type="password"
               autoComplete="new-password"
               hasError={Boolean(errors.password)}
               {...register("password")}
@@ -127,9 +127,8 @@ export function SignupForm() {
             htmlFor="confirmPassword"
             error={errors.confirmPassword?.message}
           >
-            <Input
+            <PasswordInput
               id="confirmPassword"
-              type="password"
               autoComplete="new-password"
               hasError={Boolean(errors.confirmPassword)}
               {...register("confirmPassword")}

@@ -1,13 +1,15 @@
-import { Placeholder } from "@/components/common/placeholder";
+import { CourseForm } from "@/components/admin/courses-page";
 
-export default function NewCoursePage() {
+export default function Page() {
   return (
-    <Placeholder
-      title="New course"
-      features="AC2, C1"
-      description="Title, description, category and a drag-and-drop thumbnail upload. Saves as a draft."
-      backHref="/admin/courses"
-      backLabel="Back to courses"
-    />
+    <div className="space-y-6">
+      <header>
+        <h1 className="text-2xl font-semibold tracking-tight">New course</h1>
+        <p className="text-sm text-muted-foreground">
+          Saved as a draft. You add modules and lessons next, then publish.
+        </p>
+      </header>
+      <CourseForm />
+    </div>
   );
 }

@@ -10,6 +10,7 @@ import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 import { Field, Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/providers/auth-provider";
 import { errorMessage, isApiError } from "@/lib/api";
@@ -87,9 +88,8 @@ export function LoginForm() {
           </Field>
 
           <Field label="Password" htmlFor="password" error={errors.password?.message}>
-            <Input
+            <PasswordInput
               id="password"
-              type="password"
               autoComplete="current-password"
               hasError={Boolean(errors.password)}
               aria-describedby={errors.password ? "password-error" : undefined}

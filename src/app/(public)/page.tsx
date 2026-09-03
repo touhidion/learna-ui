@@ -1,9 +1,7 @@
-import Link from "next/link";
 import { Award, BookOpen, TrendingUp } from "lucide-react";
 
-import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
+import { HeroActions } from "@/components/common/hero-actions";
 import { env } from "@/lib/env";
 
 /**
@@ -24,17 +22,7 @@ export default function LandingPage() {
           lessons, track progress, and issue verifiable certificates.
         </p>
 
-        <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
-          <Link href="/courses" className={cn(buttonVariants({ size: "lg" }))}>
-            Browse courses
-          </Link>
-          <Link
-            href="/signup"
-            className={cn(buttonVariants({ variant: "outline", size: "lg" }))}
-          >
-            Create an account
-          </Link>
-        </div>
+        <HeroActions />
       </section>
 
       <section className="mx-auto max-w-6xl px-4 pb-24">

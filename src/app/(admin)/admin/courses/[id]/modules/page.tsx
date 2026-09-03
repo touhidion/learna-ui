@@ -1,19 +1,6 @@
-import { Placeholder } from "@/components/common/placeholder";
+import { ModulesEditor } from "@/components/admin/modules-editor";
 
-export default async function CourseModulesPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+export default async function Page({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-
-  return (
-    <Placeholder
-      title="Modules & lessons"
-      features="AM1-AM6, M1-M4, L1-L5"
-      description={`Drag-and-drop module and lesson editor for course ${id}, with a markdown editor and attachment uploads.`}
-      backHref={`/admin/courses/${id}`}
-      backLabel="Back to course"
-    />
-  );
+  return <ModulesEditor courseId={id} />;
 }
