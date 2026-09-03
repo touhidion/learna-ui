@@ -17,6 +17,9 @@ list this implements.
 
 ## Quick start
 
+> Deploying? See **[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)** for Netlify, and
+> `learna-api/docs/DEPLOYMENT.md` for the full Render + Netlify + Neon guide.
+
 ```bash
 cp .env.local.example .env.local   # defaults point at http://localhost:8080
 npm install
