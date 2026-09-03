@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -7,98 +7,92 @@ import {
   BookOpen,
   GraduationCap,
   LayoutDashboard,
-  LogOut,
+  ShieldCheck,
   Users,
 } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
+import { Navbar } from "@/components/common/navbar";
 import { PageSpinner } from "@/components/ui/feedback";
-import { ThemeToggle } from "@/components/common/theme-toggle";
 import { useRequireAuth } from "@/hooks/use-require-auth";
-import { useAuth } from "@/providers/auth-provider";
 import { cn } from "@/lib/utils";
-import { env } from "@/lib/env";
 
-const NAV = [
+const ADMIN_NAV = [
   { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/admin/courses", label: "Courses", icon: BookOpen },
-  { href: "/admin/users", label: "Users", icon: Users },
-  { href: "/admin/analytics", label: "Analytics", icon: BarChart3 },
+  { href: "/admin/courses", label: "Courses Management", icon: BookOpen },
+  { href: "/admin/users", label: "User Directory", icon: Users },
+  { href: "/admin/analytics", label: "Analytics & Reports", icon: BarChart3 },
 ] as const;
 
 /**
- * Admin shell: a sidebar on desktop, a horizontal scroller on mobile
- * (feature UI5).
- *
- * `adminOnly` sends a signed-in learner to their own dashboard. The API
- * enforces the same rule on every /admin endpoint — this only keeps the UI
- * honest.
+ * Super Admin shell featuring both Top Navigation Bar and Admin Sidebar.
  */
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const { isReady } = useRequireAuth({ adminOnly: true });
-  const { user, logout } = useAuth();
   const pathname = usePathname();
 
   if (!isReady) {
-    return <PageSpinner label="Checking your permissions" />;
+    return (
+      <div className="flex min-h-screen flex-col">
+        <Navbar />
+        <main className="flex flex-1 items-center justify-center">
+          <PageSpinner label="Checking administrative permissions" />
+        </main>
+      </div>
+    );
   }
 
   return (
-    <div className="flex min-h-screen flex-col md:flex-row">
-      <aside className="border-b border-border md:w-60 md:shrink-0 md:border-b-0 md:border-r">
-        <div className="flex h-16 items-center gap-2 px-4 font-semibold">
-          <GraduationCap className="size-5 text-primary" aria-hidden="true" />
-          <span>{env.siteName}</span>
-          <span className="rounded bg-secondary px-1.5 py-0.5 text-xs font-medium text-secondary-foreground">
-            admin
-          </span>
-        </div>
+    <div className="flex min-h-screen flex-col bg-background">
+      {/* Top Navbar */}
+      <Navbar />
 
-        <nav
-          aria-label="Admin"
-          className="flex gap-1 overflow-x-auto px-2 pb-3 md:flex-col md:overflow-visible"
-        >
-          {NAV.map(({ href, label, icon: Icon }) => {
-            // startsWith so a nested route keeps its section highlighted.
-            const active = pathname === href || pathname.startsWith(`${href}/`);
-            return (
-              <Link
-                key={href}
-                href={href}
-                aria-current={active ? "page" : undefined}
-                className={cn(
-                  "flex items-center gap-2 whitespace-nowrap rounded-md px-3 py-2 text-sm font-medium transition-colors",
-                  active
-                    ? "bg-secondary text-secondary-foreground"
-                    : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
-                )}
-              >
-                <Icon className="size-4" aria-hidden="true" />
-                {label}
-              </Link>
-            );
-          })}
-        </nav>
-      </aside>
+      <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col md:flex-row">
+        {/* Admin Sidebar */}
+        <aside className="border-b border-border/80 bg-background/50 backdrop-blur md:w-64 md:shrink-0 md:border-b-0 md:border-r">
+          <div className="sticky top-16 space-y-4 p-4 md:py-8">
+            <div className="flex items-center gap-2 px-3 pb-2">
+              <ShieldCheck className="size-4 text-amber-500" />
+              <span className="text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">
+                Administration
+              </span>
+            </div>
 
-      <div className="flex min-w-0 flex-1 flex-col">
-        <header className="flex h-16 items-center justify-end gap-2 border-b border-border px-4">
-          <span className="mr-auto truncate text-sm text-muted-foreground">
-            {user?.name}
-          </span>
-          <Link
-            href="/dashboard"
-            className="text-sm text-muted-foreground hover:text-foreground"
-          >
-            Learner view
-          </Link>
-          <ThemeToggle />
-          <Button variant="ghost" size="icon" onClick={() => void logout()} aria-label="Sign out">
-            <LogOut aria-hidden="true" />
-          </Button>
-        </header>
+            <nav aria-label="Admin" className="flex gap-1 overflow-x-auto md:flex-col md:overflow-visible">
+              {ADMIN_NAV.map(({ href, label, icon: Icon }) => {
+                const active = pathname === href || pathname.startsWith(`${href}/`);
+                return (
+                  <Link
+                    key={href}
+                    href={href}
+                    aria-current={active ? "page" : undefined}
+                    className={cn(
+                      "flex items-center gap-3 whitespace-nowrap rounded-xl px-3.5 py-2.5 text-sm font-medium transition-colors",
+                      active
+                        ? "bg-primary text-primary-foreground shadow-sm shadow-primary/20"
+                        : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                    )}
+                  >
+                    <Icon className="size-4 shrink-0" aria-hidden="true" />
+                    <span>{label}</span>
+                  </Link>
+                );
+              })}
 
-        <main className="min-w-0 flex-1 p-4 md:p-6">{children}</main>
+              <div className="pt-3 md:mt-3 md:border-t md:border-border/60">
+                <Link
+                  href="/dashboard"
+                  className="flex items-center gap-3 whitespace-nowrap rounded-xl px-3.5 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
+                >
+                  <GraduationCap className="size-4 shrink-0" aria-hidden="true" />
+                  <span>Learner Portal</span>
+                </Link>
+              </div>
+            </nav>
+          </div>
+        </aside>
+
+        {/* Main Admin Content Area */}
+        <main className="min-w-0 flex-1 px-4 py-6 sm:px-6 lg:px-8">{children}</main>
       </div>
     </div>
   );

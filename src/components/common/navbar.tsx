@@ -1,7 +1,7 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
-import { GraduationCap, LayoutDashboard } from "lucide-react";
+import { GraduationCap, LayoutDashboard, ShieldCheck } from "lucide-react";
 
 import { buttonVariants } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/common/theme-toggle";
@@ -11,26 +11,30 @@ import { env } from "@/lib/env";
 import { cn } from "@/lib/utils";
 
 /**
- * Public site header — features UP5, UI5.
- *
- * Links are styled with `buttonVariants` rather than wrapped in <Button>: a
- * <button> containing an <a> is invalid HTML and breaks keyboard navigation.
+ * Public and authenticated site header — features UP5, UI5.
  */
 export function Navbar() {
   const { user, isLoading, isAuthenticated } = useAuth();
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur">
+    <header className="sticky top-0 z-40 border-b border-border/80 bg-background/85 backdrop-blur">
       <nav
         aria-label="Main"
-        className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4"
+        className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8"
       >
-        <Link href="/" className="flex items-center gap-2 font-semibold">
-          <GraduationCap className="size-5 text-primary" aria-hidden="true" />
-          <span>{env.siteName}</span>
+        <Link href="/" className="flex items-center gap-2.5 font-bold tracking-tight text-foreground">
+          <div className="flex size-9 items-center justify-center rounded-xl bg-gradient-to-tr from-primary to-primary/80 text-primary-foreground shadow-sm shadow-primary/20">
+            <GraduationCap className="size-5" aria-hidden="true" />
+          </div>
+          <span className="text-lg">{env.siteName}</span>
+          {user?.role === "admin" && (
+            <span className="hidden items-center gap-1 rounded-full bg-amber-500/10 px-2 py-0.5 text-[11px] font-semibold text-amber-600 dark:text-amber-400 sm:inline-flex">
+              <ShieldCheck className="size-3" /> Admin
+            </span>
+          )}
         </Link>
 
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1.5">
           <Link
             href="/courses"
             className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}
@@ -40,26 +44,21 @@ export function Navbar() {
 
           <ThemeToggle />
 
-          {/* Nothing auth-dependent renders until the session is known, so the
-              header never flickers from signed-out to signed-in. */}
           {isLoading ? (
             <div
               className="ml-2 size-8 animate-pulse rounded-full bg-muted"
               aria-hidden="true"
             />
           ) : isAuthenticated && user ? (
-            <div className="ml-2 flex items-center gap-1">
+            <div className="ml-2 flex items-center gap-2">
               <Link
                 href="/dashboard"
-                className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}
+                className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "gap-1.5")}
               >
-                <LayoutDashboard aria-hidden="true" />
+                <LayoutDashboard className="size-4" aria-hidden="true" />
                 <span className="hidden sm:inline">Dashboard</span>
               </Link>
 
-              {/* Profile, certificates, admin and sign-out all live in the
-                  account menu, so the header stays the same width whatever
-                  role is signed in. */}
               <UserMenu />
             </div>
           ) : (

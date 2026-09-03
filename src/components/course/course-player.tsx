@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useMemo } from "react";
 import Link from "next/link";
@@ -12,6 +12,7 @@ import {
   ChevronRight,
   CircleCheck,
   Circle,
+  Sparkles,
 } from "lucide-react";
 
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -47,7 +48,11 @@ export function CoursePlayer({ courseId, lessonId }: { courseId: string; lessonI
     [course],
   );
 
-  const current = lessonId ? flat.find((l) => l.id === lessonId) : flat[0];
+  // Resume at the first uncompleted lesson if no explicit lessonId is requested
+  const current = lessonId
+    ? flat.find((l) => l.id === lessonId)
+    : flat.find((l) => !l.completed) ?? flat[0];
+
   const index = current ? flat.findIndex((l) => l.id === current.id) : -1;
   const prev = index > 0 ? flat[index - 1] : undefined;
   const next = index >= 0 && index < flat.length - 1 ? flat[index + 1] : undefined;
@@ -113,7 +118,7 @@ export function CoursePlayer({ courseId, lessonId }: { courseId: string; lessonI
                         )}
                       >
                         {l.completed ? (
-                          <CircleCheck className="mt-0.5 size-4 shrink-0 text-success" aria-hidden="true" />
+                          <CircleCheck className="mt-0.5 size-4 shrink-0 text-amber-500" aria-hidden="true" />
                         ) : (
                           <Circle className="mt-0.5 size-4 shrink-0 opacity-40" aria-hidden="true" />
                         )}
@@ -129,21 +134,27 @@ export function CoursePlayer({ courseId, lessonId }: { courseId: string; lessonI
       </aside>
 
       <main className="min-w-0 flex-1">
-        {/* LC8 — completion banner and certificate CTA. */}
+        {/* LC8 — completion banner and certificate CTA with modern golden styling */}
         {isFinished && (
-          <Card className="mb-6 border-success/40 bg-success/5">
-            <CardContent className="flex flex-wrap items-center justify-between gap-4 pt-6">
-              <div className="flex items-center gap-3">
-                <Award className="size-8 text-success" aria-hidden="true" />
+          <Card className="mb-6 overflow-hidden border-amber-500/30 bg-gradient-to-r from-amber-500/10 via-yellow-500/5 to-transparent">
+            <CardContent className="flex flex-wrap items-center justify-between gap-4 p-5 sm:p-6">
+              <div className="flex items-center gap-3.5">
+                <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-amber-500 to-amber-300 text-slate-950 shadow-md shadow-amber-500/20">
+                  <Award className="size-6" aria-hidden="true" />
+                </div>
                 <div>
-                  <h2 className="font-semibold">Course complete</h2>
-                  <p className="text-sm text-muted-foreground">
-                    Claim your certificate — it is verifiable by anyone.
+                  <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">
+                    <Sparkles className="size-3.5" /> Course Complete
+                  </div>
+                  <h2 className="text-base font-bold sm:text-lg">Congratulations! You earned your certificate.</h2>
+                  <p className="text-xs text-muted-foreground sm:text-sm">
+                    Claim your verified credential to share on your resume and LinkedIn.
                   </p>
                 </div>
               </div>
               <Button
                 isLoading={generateCert.isPending}
+                className="bg-gradient-to-r from-amber-500 to-amber-600 font-semibold text-slate-950 shadow-md shadow-amber-500/20 hover:from-amber-400 hover:to-amber-500"
                 onClick={async () => {
                   try {
                     await generateCert.mutateAsync(courseId);
@@ -153,7 +164,7 @@ export function CoursePlayer({ courseId, lessonId }: { courseId: string; lessonI
                   }
                 }}
               >
-                Get certificate
+                Claim Certificate
               </Button>
             </CardContent>
           </Card>
@@ -167,9 +178,6 @@ export function CoursePlayer({ courseId, lessonId }: { courseId: string; lessonI
 
             {current.content ? (
               <div className="prose-lesson">
-                {/* Markdown is rendered without rehype-raw: lesson bodies are
-                    author-supplied, and allowing embedded HTML would make an
-                    admin account an XSS vector against every learner. */}
                 <ReactMarkdown remarkPlugins={[remarkGfm]}>{current.content}</ReactMarkdown>
               </div>
             ) : (
@@ -178,7 +186,7 @@ export function CoursePlayer({ courseId, lessonId }: { courseId: string; lessonI
               </p>
             )}
 
-            {/* LC5 — mark complete. */}
+            {/* LC5 — mark complete (instant click, no wait time required) */}
             <div className="flex flex-wrap items-center gap-3 border-t border-border pt-6">
               <Button
                 variant={current.completed ? "outline" : "default"}
@@ -198,7 +206,7 @@ export function CoursePlayer({ courseId, lessonId }: { courseId: string; lessonI
               </Button>
               {current.duration_min > 0 && (
                 <span className="text-sm text-muted-foreground">
-                  About {formatDuration(current.duration_min)}
+                  Estimated time: {formatDuration(current.duration_min)}
                 </span>
               )}
             </div>
@@ -241,7 +249,6 @@ function LessonVideo({ lesson }: { lesson: Lesson }) {
 
   const embed = toEmbedUrl(lesson.video_url);
   if (!embed) {
-    // An unrecognised host is linked rather than dropped into an iframe.
     return (
       <a
         href={lesson.video_url}
