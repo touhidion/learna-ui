@@ -1,5 +1,6 @@
-"use client";
+﻿"use client";
 
+import { useEffect } from "react";
 import Link from "next/link";
 import { Award, BookOpen, GraduationCap, Plus, Users } from "lucide-react";
 
@@ -14,6 +15,10 @@ import { cn } from "@/lib/utils";
 export default function AdminDashboardPage() {
   const { user } = useAuth();
   const { data, isLoading } = useAnalyticsOverview();
+
+  useEffect(() => {
+    document.title = "Admin Dashboard | Learna";
+  }, []);
 
   const stats = [
     { label: "Users", value: data?.total_users, href: "/admin/users", icon: Users },
@@ -62,7 +67,6 @@ export default function AdminDashboardPage() {
           Manage users
         </Link>
       </div>
-
     </div>
   );
 }

@@ -1,5 +1,6 @@
-"use client";
+﻿"use client";
 
+import { useEffect } from "react";
 import Link from "next/link";
 import { Award, BookOpen } from "lucide-react";
 
@@ -16,18 +17,22 @@ export default function DashboardPage() {
   const { data, isLoading } = useMyEnrollments();
   const enrollments = data?.items ?? [];
 
+  useEffect(() => {
+    document.title = "My Courses & Dashboard | Learna";
+  }, []);
+
   return (
-    <div className="mx-auto max-w-6xl space-y-6 px-4 py-10">
-      <header className="flex flex-wrap items-center justify-between gap-3">
+    <div className="space-y-6">
+      <header className="flex flex-wrap items-center justify-between gap-3 border-b border-border/60 pb-5">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">
+          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
             Welcome back, {user?.name.split(" ")[0]}
           </h1>
-          <p className="text-sm text-muted-foreground">Pick up where you left off.</p>
+          <p className="text-sm text-muted-foreground">Pick up right where you left off.</p>
         </div>
-        <Link href="/certificates" className={cn(buttonVariants({ variant: "outline" }))}>
-          <Award aria-hidden="true" />
-          Certificates
+        <Link href="/certificates" className={cn(buttonVariants({ variant: "outline" }), "gap-2")}>
+          <Award className="size-4 text-amber-500" aria-hidden="true" />
+          <span>Certificates</span>
         </Link>
       </header>
 
@@ -38,20 +43,17 @@ export default function DashboardPage() {
           ))}
         </CourseGrid>
       ) : enrollments.length === 0 ? (
-        /* LD2 */
         <EmptyState
-          icon={<BookOpen />}
+          icon={<BookOpen className="text-primary" />}
           title="You are not enrolled in any courses yet"
-          description="Browse the catalog and enrol to start learning."
+          description="Browse the course catalog and enrol to start learning."
           action={
             <Link href="/courses" className={cn(buttonVariants())}>
-              Browse courses
+              Browse Courses
             </Link>
           }
         />
       ) : (
-        /* LD1 — Continue goes straight into the player, which opens the first
-           lesson when none is specified. */
         <CourseGrid>
           {enrollments.map((e) => (
             <CourseCard

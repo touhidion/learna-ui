@@ -21,18 +21,19 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL(env.siteUrl),
   title: {
-    default: `${env.siteName} — Learn at your own pace`,
-    template: `%s — ${env.siteName}`,
+    default: `${env.siteName} - Modern Self-Hosted Learning Platform`,
+    template: `%s | ${env.siteName}`,
   },
   description:
-    "A self-hosted training portal. Structured courses, progress tracking and certificates.",
+    "A self-hosted training portal. Structured courses, persistent progress tracking, and verifiable certificates.",
   icons: {
     icon: [
       { url: "/icon.svg", type: "image/svg+xml" },
-      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icon.png", type: "image/png" },
+      { url: "/favicon.ico", sizes: "32x32" },
     ],
     shortcut: "/icon.svg",
-    apple: "/icon.svg",
+    apple: "/icon.png",
   },
   openGraph: {
     type: "website",
@@ -53,6 +54,11 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+        <link rel="icon" href="/favicon.ico" sizes="32x32" />
+        <link rel="apple-touch-icon" href="/icon.png" />
+      </head>
       <body className={`${geistSans.variable} ${geistMono.variable} min-h-screen antialiased`}>
         <Providers>{children}</Providers>
       </body>

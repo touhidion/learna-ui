@@ -1,11 +1,12 @@
 ﻿"use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import {
+  ArrowLeft,
   Award,
   Check,
   ChevronLeft,
@@ -32,14 +33,19 @@ import type { Lesson } from "@/types/course";
  * The whole tree arrives in one request (`/learn/courses/:id`), including each
  * lesson's body and completion flag, so moving between lessons needs no
  * further fetch and the sidebar ticks update from the same cache.
- *
- * Attachments (LC4) are not shown: file upload is out of scope for this phase.
  */
 export function CoursePlayer({ courseId, lessonId }: { courseId: string; lessonId?: string }) {
   const { data: course, isLoading } = useLearnCourse(courseId);
   const toggle = useToggleLessonComplete(courseId);
   const generateCert = useGenerateCertificate();
   const router = useRouter();
+
+  // Update browser title when course loads
+  useEffect(() => {
+    if (course?.title) {
+      document.title = `${course.title} | Learna`;
+    }
+  }, [course?.title]);
 
   // A flat, ordered list is what prev/next navigation needs — it has to cross
   // module boundaries, which a nested structure makes awkward (LC6).
@@ -77,18 +83,19 @@ export function CoursePlayer({ courseId, lessonId }: { courseId: string; lessonI
   }
 
   return (
-    <div className="mx-auto flex max-w-7xl flex-col gap-6 px-4 py-6 lg:flex-row">
-      {/* LC1, LC7 — sidebar with progress and navigation. */}
-      <aside className="lg:w-80 lg:shrink-0">
-        <div className="space-y-4 lg:sticky lg:top-20">
+    <div className="flex w-full flex-col gap-6 lg:flex-row">
+      {/* LC1, LC7 — lesson outline sidebar with progress and navigation. */}
+      <aside className="lg:w-72 xl:w-80 lg:shrink-0">
+        <div className="space-y-4 rounded-2xl border border-border/80 bg-card/60 p-4 lg:sticky lg:top-20">
           <div>
             <Link
               href="/dashboard"
-              className="text-sm text-muted-foreground hover:text-foreground"
+              className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
             >
-              ← My courses
+              <ArrowLeft className="size-3.5" />
+              <span>Back to courses</span>
             </Link>
-            <h1 className="mt-1 font-semibold leading-snug">{course.title}</h1>
+            <h1 className="mt-2 font-bold leading-snug">{course.title}</h1>
           </div>
 
           <div className="space-y-1.5">
@@ -98,7 +105,7 @@ export function CoursePlayer({ courseId, lessonId }: { courseId: string; lessonI
             </p>
           </div>
 
-          <nav aria-label="Course lessons" className="max-h-[60vh] space-y-3 overflow-y-auto">
+          <nav aria-label="Course lessons" className="max-h-[60vh] space-y-3 overflow-y-auto pr-1">
             {course.modules.map((m, mi) => (
               <div key={m.id}>
                 <h2 className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
@@ -111,18 +118,24 @@ export function CoursePlayer({ courseId, lessonId }: { courseId: string; lessonI
                         href={`/learn/${courseId}/lessons/${l.id}`}
                         aria-current={l.id === current?.id ? "page" : undefined}
                         className={cn(
-                          "flex items-start gap-2 rounded-md px-2 py-1.5 text-sm transition-colors",
+                          "flex items-start gap-2 rounded-lg px-2.5 py-2 text-xs font-medium transition-colors",
                           l.id === current?.id
-                            ? "bg-secondary font-medium text-secondary-foreground"
-                            : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
+                            ? "bg-primary text-primary-foreground shadow-sm shadow-primary/20"
+                            : "text-muted-foreground hover:bg-muted hover:text-foreground",
                         )}
                       >
                         {l.completed ? (
-                          <CircleCheck className="mt-0.5 size-4 shrink-0 text-amber-500" aria-hidden="true" />
+                          <CircleCheck
+                            className={cn(
+                              "mt-0.5 size-3.5 shrink-0",
+                              l.id === current?.id ? "text-primary-foreground" : "text-amber-500",
+                            )}
+                            aria-hidden="true"
+                          />
                         ) : (
-                          <Circle className="mt-0.5 size-4 shrink-0 opacity-40" aria-hidden="true" />
+                          <Circle className="mt-0.5 size-3.5 shrink-0 opacity-40" aria-hidden="true" />
                         )}
-                        <span className="min-w-0 flex-1">{l.title}</span>
+                        <span className="min-w-0 flex-1 leading-snug">{l.title}</span>
                       </Link>
                     </li>
                   ))}

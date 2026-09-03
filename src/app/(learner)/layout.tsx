@@ -25,44 +25,21 @@ const LEARNER_NAV = [
 ] as const;
 
 /**
- * Learner shell with both top Navigation Bar and Sidebar Navigation.
+ * Learner shell: Top Navigation Bar and Sidebar Navigation are ALWAYS visible
+ * regardless of content or loading state.
  */
 export default function LearnerLayout({ children }: { children: React.ReactNode }) {
   const { isReady } = useRequireAuth();
   const { user } = useAuth();
   const pathname = usePathname();
 
-  // On active course learning player pages (/learn/...), let the player render full width
-  // with its dedicated lesson navigation sidebar.
-  const isPlayerPage = pathname.startsWith("/learn/");
-
-  if (!isReady) {
-    return (
-      <div className="flex min-h-screen flex-col">
-        <Navbar />
-        <main className="flex flex-1 items-center justify-center">
-          <PageSpinner label="Checking your session" />
-        </main>
-      </div>
-    );
-  }
-
-  if (isPlayerPage) {
-    return (
-      <div className="flex min-h-screen flex-col">
-        <Navbar />
-        <main className="flex-1">{children}</main>
-        <Footer />
-      </div>
-    );
-  }
-
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col bg-background">
+      {/* Top Navbar: Always rendered */}
       <Navbar />
 
       <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col md:flex-row">
-        {/* Learner Sidebar */}
+        {/* Learner Sidebar: Always rendered */}
         <aside className="border-b border-border/80 bg-background/50 backdrop-blur md:w-64 md:shrink-0 md:border-b-0 md:border-r">
           <div className="sticky top-16 space-y-4 p-4 md:py-8">
             <div className="px-3 pb-2 hidden md:block">
@@ -108,7 +85,9 @@ export default function LearnerLayout({ children }: { children: React.ReactNode 
         </aside>
 
         {/* Main Content Area */}
-        <main className="min-w-0 flex-1 px-4 py-6 sm:px-6 lg:px-8">{children}</main>
+        <main className="min-w-0 flex-1 px-4 py-6 sm:px-6 lg:px-8">
+          {isReady ? children : <PageSpinner label="Checking your session" />}
+        </main>
       </div>
 
       <Footer />

@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 
 import { VerifyResult } from "@/components/course/verify-certificate";
 import { API_BASE } from "@/lib/env";
@@ -30,7 +30,7 @@ export async function generateMetadata({
   const { certNumber } = await params;
   const cert = await verify(decodeURIComponent(certNumber));
   return {
-    title: cert ? `${cert.user_name} — ${cert.course_title}` : `Certificate ${certNumber}`,
+    title: cert ? `${cert.user_name} - ${cert.course_title}` : `Certificate ${certNumber}`,
     // Certificates name a real person; keep them out of search results.
     robots: { index: false, follow: false },
   };
