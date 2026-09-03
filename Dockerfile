@@ -23,8 +23,8 @@ COPY . .
 #   docker build --build-arg NEXT_PUBLIC_API_URL=https://api.example.com .
 #
 # Changing it later means rebuilding the image.
-ARG NEXT_PUBLIC_API_URL=http://localhost:8080
-ARG NEXT_PUBLIC_SITE_URL=http://localhost:3000
+ARG NEXT_PUBLIC_API_URL=http://localhost:8082
+ARG NEXT_PUBLIC_SITE_URL=http://localhost:3200
 ARG NEXT_PUBLIC_SITE_NAME=Learna
 
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL \
@@ -41,7 +41,7 @@ WORKDIR /app
 
 ENV NODE_ENV=production \
     NEXT_TELEMETRY_DISABLED=1 \
-    PORT=3000 \
+    PORT=3200 \
     HOSTNAME=0.0.0.0
 
 RUN addgroup -g 1001 -S nodejs && adduser -S -u 1001 -G nodejs nextjs
@@ -55,9 +55,9 @@ COPY --from=build --chown=nextjs:nodejs /app/public ./public
 
 USER nextjs
 
-EXPOSE 3000
+EXPOSE 3200
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
-    CMD wget -qO- http://127.0.0.1:3000/ >/dev/null 2>&1 || exit 1
+    CMD wget -qO- http://127.0.0.1:3200/ >/dev/null 2>&1 || exit 1
 
 CMD ["node", "server.js"]

@@ -2,10 +2,14 @@ node_modules
 .next
 .git
 .gitignore
+# No env file is read inside the image: NEXT_PUBLIC_* values arrive as
+# --build-arg at build time. Excluding them all keeps secrets out of layers.
 .env*
-!.env.local.example
 docs
 *.md
 Dockerfile
 .dockerignore
 npm-debug.log*
+*.log
+.gitattributes
+coverage/
