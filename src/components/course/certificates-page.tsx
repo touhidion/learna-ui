@@ -10,6 +10,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Dialog } from "@/components/ui/dialog";
 import { EmptyState, Skeleton } from "@/components/ui/feedback";
 import { CertificateShareDialog } from "@/components/course/certificate-share-dialog";
+import { OfficialSeal } from "@/components/course/official-seal";
 import { useMyCertificates } from "@/hooks/use-api";
 import { api } from "@/lib/api";
 import { cn, formatDate } from "@/lib/utils";
@@ -106,10 +107,19 @@ export function CertificatesPage() {
                 </p>
               </div>
 
-              <div className="flex items-center justify-between border-t border-amber-500/20 pt-4 text-xs text-muted-foreground">
-                <div>Issued: {formatDate(previewCert.issued_at)}</div>
-                <div className="font-mono font-semibold text-foreground">
-                  {previewCert.cert_number}
+              <div className="flex flex-col items-center justify-between gap-4 border-t border-amber-500/20 pt-5 sm:flex-row text-xs text-muted-foreground">
+                <div className="text-left">
+                  <p className="text-[10px] uppercase tracking-wider">Date of Issuance</p>
+                  <p className="font-semibold text-foreground">{formatDate(previewCert.issued_at)}</p>
+                </div>
+
+                <OfficialSeal size={84} showRibbons={true} />
+
+                <div className="text-center sm:text-right">
+                  <p className="text-[10px] uppercase tracking-wider">Serial Number</p>
+                  <p className="font-mono font-bold text-amber-600 dark:text-amber-400">
+                    {previewCert.cert_number}
+                  </p>
                 </div>
               </div>
             </div>

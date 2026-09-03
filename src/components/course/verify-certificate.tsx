@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { CertificateShareDialog } from "@/components/course/certificate-share-dialog";
+import { OfficialSeal } from "@/components/course/official-seal";
 import { cn, formatDate } from "@/lib/utils";
 import { env } from "@/lib/env";
 import type { Certificate } from "@/types/course";
